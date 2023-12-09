@@ -1,10 +1,10 @@
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ( { navigation, route }) => {
@@ -65,6 +65,32 @@ const ChatScreen = ( { navigation, route }) => {
    }).catch((error) => alert(error.message))
   };
 
+  const deleteMessage = async (messageId) => {
+    try {
+      await deleteDoc(doc(db, "chats", route.params.id, "messages", messageId));
+    } catch (error) {
+      console.error("Error deleting message: ", error.message);
+    }
+  };
+
+  const handleDeletePress = (messageId) => {
+    Alert.alert(
+      "Delete Message",
+      "Are you sure you want to delete this message?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteMessage(messageId),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   useLayoutEffect(() => {
         const q = query(collection(db, "chats", route.params.id, "messages"), 
         orderBy("timestamp", "asc"));
@@ -90,13 +116,19 @@ const ChatScreen = ( { navigation, route }) => {
         style={styles.container}
         keyboardVerticalOffset={90}
       >
-        <ScrollView contentContainerStyle={{paddingTop: 15}}>
-          {messages.map(({id, data}) => (
-             data.email === auth.currentUser.email ? (
-                <View key={id} style={styles.userMessage}>
-                  <Avatar 
-                  rounded 
-                  source={{uri: data.photoUrl}}
+        <ScrollView contentContainerStyle={{ paddingTop: 15 }}>
+          {messages.map(({ id, data }) => (
+            data.email === auth.currentUser.email ? (
+              <View key={id} style={styles.userMessage}>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeletePress(id)}
+                >
+                  <Ionicons name="trash-bin-outline" size={20} color="red" />
+                </TouchableOpacity>
+                <Avatar
+                  rounded
+                  source={{ uri: data.photoUrl }}
                   // WEB
                   containerStyle={{
                     position: "absolute",
@@ -106,14 +138,15 @@ const ChatScreen = ( { navigation, route }) => {
                   position="absolute"
                   bottom={-15}
                   right={-5}
-                  size={30}/>
-                  <Text style={styles.userText}>{data.message}</Text>
-                </View>
-             ) : (
-                <View key={id} style={styles.senderMessage}>
-                  <Text style={styles.senderText}>{data.message}</Text>
-                  <Text style={styles.senderName}>{data.displayName}</Text>
-                  <Avatar rounded 
+                  size={30}
+                />
+                <Text style={styles.userText}>{data.message}</Text>
+              </View>
+            ) : (
+              <View key={id} style={styles.senderMessage}>
+                <Text style={styles.senderText}>{data.message}</Text>
+                <Text style={styles.senderName}>{data.displayName}</Text>
+                <Avatar rounded 
                   source={{uri: data.photoUrl}}
                   // WEB
                   containerStyle={{
@@ -124,14 +157,15 @@ const ChatScreen = ( { navigation, route }) => {
                   position="absolute"
                   bottom={-15}
                   left={-5}
-                  size={30} />
-                </View>
-             )
+                  size={30}
+                />
+              </View>
+            )
           ))}
         </ScrollView>
         <View style={styles.footer}>
           <TextInput value={input} onChangeText={(text) => setInput(text)} 
-          placeholder='Message...' style={styles.textInput}/>
+            placeholder='Message...' style={styles.textInput}/>
           <TouchableOpacity onPress={sendMessage} activeOpacity={0.5}>
             <Ionicons name="send" size={24} color="#017c13"/>
           </TouchableOpacity>
@@ -157,7 +191,12 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
     position: "relative",
   },
-
+  deleteButton: {
+    position: "absolute",
+    top: 35,
+    right: 45,
+    padding: 5,
+  },
   senderMessage: {
     padding: 15,
     backgroundColor: "#01a81a",
