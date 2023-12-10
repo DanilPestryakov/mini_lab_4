@@ -1,11 +1,29 @@
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
-import { Avatar } from 'react-native-elements';
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    UIManager,
+    View
+} from 'react-native';
+import React, {useState, useLayoutEffect} from 'react';
+import {Avatar, Card} from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import {
+    Menu,
+    MenuOptions,
+    MenuOption,
+    MenuTrigger,
+} from 'react-native-popup-menu';
 
 const ChatScreen = ( { navigation, route }) => {
   const [input, setInput] = useState('');
@@ -94,8 +112,8 @@ const ChatScreen = ( { navigation, route }) => {
           {messages.map(({id, data}) => (
              data.email === auth.currentUser.email ? (
                 <View key={id} style={styles.userMessage}>
-                  <Avatar 
-                  rounded 
+                  <Avatar
+                  rounded
                   source={{uri: data.photoUrl}}
                   // WEB
                   containerStyle={{
@@ -107,13 +125,19 @@ const ChatScreen = ( { navigation, route }) => {
                   bottom={-15}
                   right={-5}
                   size={30}/>
-                  <Text style={styles.userText}>{data.message}</Text>
+                    <Menu>
+                        <MenuTrigger text={data.message}/>
+                        <MenuOptions>
+                            <MenuOption onSelect={() => deleteDoc(doc(collection(db, "chats", route.params.id, "messages"), id)) } text={"Delete"}>
+                            </MenuOption>
+                        </MenuOptions>
+                    </Menu>
                 </View>
              ) : (
                 <View key={id} style={styles.senderMessage}>
                   <Text style={styles.senderText}>{data.message}</Text>
                   <Text style={styles.senderName}>{data.displayName}</Text>
-                  <Avatar rounded 
+                  <Avatar rounded
                   source={{uri: data.photoUrl}}
                   // WEB
                   containerStyle={{
@@ -130,7 +154,7 @@ const ChatScreen = ( { navigation, route }) => {
           ))}
         </ScrollView>
         <View style={styles.footer}>
-          <TextInput value={input} onChangeText={(text) => setInput(text)} 
+          <TextInput value={input} onChangeText={(text) => setInput(text)}
           placeholder='Message...' style={styles.textInput}/>
           <TouchableOpacity onPress={sendMessage} activeOpacity={0.5}>
             <Ionicons name="send" size={24} color="#017c13"/>
