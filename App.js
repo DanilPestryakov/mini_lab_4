@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native'; 
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ThemeProvider} from 'react-native-elements';
 import LoginScreen from './screens/LoginScreen';
@@ -6,6 +6,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import AddChatScreen from './screens/AddChatScreen';
 import ChatScreen from './screens/ChatScreen';
+import ProfileScreen from "./screens/ProfileScreen";
+import ChatSearchScreen from "./screens/ChatSearchScreen";
 
 // Навигационный стек экранов. Позволяет упорядоченно переключатся между экранами
 const Stack = createStackNavigator();
@@ -36,6 +38,8 @@ export default function App() {
           <Stack.Screen options={{title: "Home"}} name="Home" component={HomeScreen}/>
           <Stack.Screen options={{title: "Add Chat"}} name="AddChat" component={AddChatScreen}/>
           <Stack.Screen options={{title: "Chat"}} name="Chat" component={ChatScreen}/>
+            <Stack.Screen options={{title: "Profile"}} name="Profile" component={ProfileScreen}/>
+            <Stack.Screen options={{title: "Chat Search"}} name="ChatSearch" component={ChatSearchScreen}/>
           </Stack.Navigator>
       </NavigationContainer>
     </ThemeProvider>

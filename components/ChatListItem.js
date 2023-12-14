@@ -1,9 +1,9 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { ListItem, Avatar } from 'react-native-elements';
-import { deafultPicURL } from '../utils';
-import { collection, onSnapshot, limit, query, orderBy } from 'firebase/firestore';
-import { db } from '../firebase';
+import {StyleSheet, TouchableOpacity} from 'react-native'
+import React, {useEffect, useState} from 'react'
+import {Avatar, ListItem} from 'react-native-elements';
+import {deafultPicURL} from '../utils';
+import {collection, limit, onSnapshot, orderBy, query} from 'firebase/firestore';
+import {db} from '../firebase';
 
 // Элемент списка чатов
 // В props принимет id чата, название и функцию-коллбэк обработки нажатия на этот элемент 
@@ -13,7 +13,7 @@ const ChatListItem = ({ id, chatName, enterChat }) => {
   useEffect(() => {
     const q = query(collection(db, "chats", id, "messages"), 
         orderBy("timestamp", "desc"), limit(1));
-        const unsubscribe = onSnapshot(q, (querySnaphots) => {
+      return onSnapshot(q, (querySnaphots) => {
             const messages = [];
             querySnaphots.forEach((doc) => {
                 messages.push({
@@ -24,7 +24,6 @@ const ChatListItem = ({ id, chatName, enterChat }) => {
             setLastMessage(messages[0]);
             console.log(messages);
         });
-        return unsubscribe;
   }, []);
 
   return (
