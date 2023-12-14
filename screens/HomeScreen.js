@@ -42,7 +42,7 @@ const HomeScreen = ({navigation}) => {
             // Задаем разметку частей слева и справа от заголовка
             headerLeft: () => (
                 <View style={{ marginLeft: 20 }}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={()=>alert("Navigate to UserProfileScreen")}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={()=>navigation.navigate("UserProfile")}>
                         <Avatar rounded source={{ uri: auth?.currentUser?.photoURL }}/>
                     </TouchableOpacity>
                 </View>
@@ -57,24 +57,25 @@ const HomeScreen = ({navigation}) => {
                     <TouchableOpacity onPress={() => navigation.navigate("AddChat")} activeOpacity={0.5}>
                         <SimpleLineIcons name='pencil' size={24} color="black"/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>alert("Navigate to SearchScreen")} activeOpacity={0.5}>
+                    <TouchableOpacity onPress={()=>navigation.navigate("SearchScreen")} activeOpacity={0.5}>
                         <Ionicons name='search' size={24} color="black"/>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={signOut} activeOpacity={0.5}>
                         <Ionicons name='exit' size={24} color="black"/>
-                    </TouchableOpacity> 
+                    </TouchableOpacity>
                 </View>
             )
         })
     }, [navigation])
 
-    // Переходим на экран чата; при этом передаем id и name выбранного чата, 
+    // Переходим на экран чата; при этом передаем id и name выбранного чата,
     // чтобы на экране чата отобразить нужное содержимое
     const enterChat = (id, chatName) => {
         navigation.navigate("Chat", {id, chatName,})
     }
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{flex: 1}}>
         <ScrollView style={styles.container}>
             {chats.map( ({id, data: { chatName }}) => (
                 <ChatListItem key={id} id={id} chatName={chatName} enterChat={enterChat}/>

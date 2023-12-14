@@ -1,15 +1,22 @@
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, Modal, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { deleteDoc, addDoc, doc, collection, onSnapshot, serverTimestamp, query, orderBy, where } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+
 
 const ChatScreen = ( { navigation, route }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
+
+  //ловим состояние модального окна после нажатия на сообщение
+  const [modalVisible, setModalVisible] = useState(false);
+  //ловим id и data сообщения после нажатия на сообщение
+  const [Id, setId] = useState();
+  const [Data, setData] = useState([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -37,7 +44,7 @@ const ChatScreen = ( { navigation, route }) => {
             <View style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              width: 80, 
+              width: 80,
               marginRight: 20,
             }}>
               <TouchableOpacity>
@@ -66,7 +73,7 @@ const ChatScreen = ( { navigation, route }) => {
   };
 
   useLayoutEffect(() => {
-        const q = query(collection(db, "chats", route.params.id, "messages"), 
+        const q = query(collection(db, "chats", route.params.id, "messages"),
         orderBy("timestamp", "asc"));
         const unsubscribe = onSnapshot(q, (querySnaphots) => {
             const messages = [];
@@ -82,6 +89,14 @@ const ChatScreen = ( { navigation, route }) => {
         return unsubscribe;
   }, [route]);
 
+
+   const deleteMessage = async (id) =>{
+        setModalVisible(!modalVisible);
+        console.log(auth.currentUser.displayName)
+
+        await deleteDoc(doc(db, "chats", route.params.id, "messages", id));
+   }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBar style='light'/>
@@ -94,8 +109,8 @@ const ChatScreen = ( { navigation, route }) => {
           {messages.map(({id, data}) => (
              data.email === auth.currentUser.email ? (
                 <View key={id} style={styles.userMessage}>
-                  <Avatar 
-                  rounded 
+                  <Avatar
+                  rounded
                   source={{uri: data.photoUrl}}
                   // WEB
                   containerStyle={{
@@ -107,13 +122,45 @@ const ChatScreen = ( { navigation, route }) => {
                   bottom={-15}
                   right={-5}
                   size={30}/>
-                  <Text style={styles.userText}>{data.message}</Text>
+
+                  <TouchableOpacity onPress = {()=>{setModalVisible(true); setId(id); setData(data)}} hitSlop={{ top: 25, bottom: 25, left: 15, right: 15 }} >
+                    <Text style={styles.userText} >{data.message}</Text>
+                  </TouchableOpacity>
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            Alert.alert('Modal has been closed.');
+                            setModalVisible(!modalVisible);
+                        }}>
+                    <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                    <Text style={[styles.modalText, {fontWeight: "600", fontSize: 16}]}>Delete message?</Text>
+                    <Text style={styles.modalText}>Text message: {Data.message}</Text>
+                    <View style={{flexDirection: "row",}}>
+                        <TouchableOpacity
+                            style={styles.buttonClose}
+                            onPress={() => setModalVisible(!modalVisible)}>
+                        <Text style={styles.textStyle}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.buttonClose}
+                            onPress={() => {setModalVisible(!modalVisible); deleteMessage(Id)}}>
+                        <Text style={styles.textStyle}>Yes</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </View>
+                    </View>
+                    </Modal>
                 </View>
              ) : (
+
                 <View key={id} style={styles.senderMessage}>
+
                   <Text style={styles.senderText}>{data.message}</Text>
                   <Text style={styles.senderName}>{data.displayName}</Text>
-                  <Avatar rounded 
+                  <Avatar rounded
                   source={{uri: data.photoUrl}}
                   // WEB
                   containerStyle={{
@@ -130,7 +177,7 @@ const ChatScreen = ( { navigation, route }) => {
           ))}
         </ScrollView>
         <View style={styles.footer}>
-          <TextInput value={input} onChangeText={(text) => setInput(text)} 
+          <TextInput value={input} onChangeText={(text) => setInput(text)}
           placeholder='Message...' style={styles.textInput}/>
           <TouchableOpacity onPress={sendMessage} activeOpacity={0.5}>
             <Ionicons name="send" size={24} color="#017c13"/>
@@ -152,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ECECEC',
     alignSelf: "flex-end",
     borderRadius: 20,
-    marginRight: 15, 
+    marginRight: 15,
     marginBottom: 20,
     maxWidth: "80%",
     position: "relative",
@@ -168,7 +215,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   senderName: {
-    left: 10, 
+    left: 10,
     paddingRight: 10,
     fontSize: 10,
     color: "white",
@@ -190,16 +237,62 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     padding: 15,
-  }, 
+  },
   textInput: {
     bottom: 0,
     height: 40,
-    flex: 1, 
+    flex: 1,
     marginRight: 15,
     borderColor: "#ECECEC",
     borderWidth: 1,
     padding: 10,
     color: "grey",
     borderRadius: 30,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: "rgba(255,255,255,0.5)",
+
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonClose: {
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: '#01a81a',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+
+  iconStyle: {
+    position: "absolute",
+    bottom: -15,
+    right: 20,
   },
 });
