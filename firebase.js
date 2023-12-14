@@ -2,8 +2,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import firebaseConfig from "./firebase-credentials";
 
+const firebaseConfig = {
+    apiKey: "AIzaSyCythl-BoEDlows8dWuH4C-Ulg0OTH0kAE",
+    authDomain: "api-mini-lab-4-fe970.firebaseapp.com",
+    projectId: "api-mini-lab-4-fe970",
+    storageBucket: "api-mini-lab-4-fe970.appspot.com",
+    messagingSenderId: "212169682177",
+    appId: "1:212169682177:web:b41a050db714210a2a7f00"
+};
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
