@@ -4,8 +4,31 @@ import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import {
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    UIManager,
+    View
+} from 'react-native';
+import {
+    Menu,
+    MenuOptions,
+    MenuOption,
+    MenuTrigger,
+} from 'react-native-popup-menu';
+
+import React, {useState, useLayoutEffect} from 'react';
+import {Avatar, Card} from 'react-native-elements';
+
 
 const ChatScreen = ( { navigation, route }) => {
   const [input, setInput] = useState('');
@@ -25,7 +48,13 @@ const ChatScreen = ( { navigation, route }) => {
             <Avatar rounded source={{
                 uri: messages[messages.length-1]?.data.photoUrl || deafultPicURL
               }}/>
-            <Text style={{ color: "white", marginLeft: 10, fontWeight: "700"}}>{route.params.chatName}</Text>
+              <Menu>
+                  <MenuTrigger text={data.message}/>
+                  <MenuOptions>
+                      <MenuOption onSelect={() => deleteDoc(doc(collection(db, "chats", route.params.id, "messages"), id)) } text={"Delete"}>
+                      </MenuOption>
+                  </MenuOptions>
+              </Menu>
           </View>),
         headerLeft: () => (
           <TouchableOpacity style={{ marginLeft: 10 }}
