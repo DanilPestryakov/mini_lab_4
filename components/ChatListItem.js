@@ -6,12 +6,12 @@ import { collection, onSnapshot, limit, query, orderBy } from 'firebase/firestor
 import { db } from '../firebase';
 
 // Элемент списка чатов
-// В props принимет id чата, название и функцию-коллбэк обработки нажатия на этот элемент 
+// В props принимет id чата, название и функцию-коллбэк обработки нажатия на этот элемент
 const ChatListItem = ({ id, chatName, enterChat }) => {
   const [lastMessage, setLastMessage] = useState({});
-  
+
   useEffect(() => {
-    const q = query(collection(db, "chats", id, "messages"), 
+    const q = query(collection(db, "chats", id, "messages"),
         orderBy("timestamp", "desc"), limit(1));
         const unsubscribe = onSnapshot(q, (querySnaphots) => {
             const messages = [];

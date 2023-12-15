@@ -1,10 +1,10 @@
-import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Avatar } from 'react-native-elements';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import {SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Avatar} from 'react-native-elements';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import ChatListItem from '../components/ChatListItem';
-import { Ionicons, SimpleLineIcons } from '@expo/vector-icons'
-import { auth, db } from '../firebase';
-import { collection, onSnapshot, where, query } from 'firebase/firestore';
+import {Ionicons, SimpleLineIcons} from '@expo/vector-icons'
+import {auth, db} from '../firebase';
+import {collection, onSnapshot, query, where} from 'firebase/firestore';
 
 const HomeScreen = ({navigation}) => {
     // Отслеживаем и обрабатываем изменения списка чатов
@@ -16,10 +16,10 @@ const HomeScreen = ({navigation}) => {
             navigation.replace("Login");
         });
     };
-    // 
+    //
     useEffect(() => {
         const q = query(collection(db, "chats"), where("chatName", '!=', ""));
-        const unsubscribe = onSnapshot(q, (querySnaphots) => {
+        return onSnapshot(q, (querySnaphots) => {
             const chats = [];
             querySnaphots.forEach((doc) => {
                 chats.push({
@@ -30,7 +30,6 @@ const HomeScreen = ({navigation}) => {
             console.log(chats);
             setChats(chats);
         });
-        return unsubscribe;
     }, [])
 
     // Перед отрисовкой UI настраиваем содержимое верхней плашки
@@ -42,7 +41,7 @@ const HomeScreen = ({navigation}) => {
             // Задаем разметку частей слева и справа от заголовка
             headerLeft: () => (
                 <View style={{ marginLeft: 20 }}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={()=>alert("Navigate to UserProfileScreen")}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={()=>navigation.navigate('Profile')}>
                         <Avatar rounded source={{ uri: auth?.currentUser?.photoURL }}/>
                     </TouchableOpacity>
                 </View>
@@ -57,7 +56,7 @@ const HomeScreen = ({navigation}) => {
                     <TouchableOpacity onPress={() => navigation.navigate("AddChat")} activeOpacity={0.5}>
                         <SimpleLineIcons name='pencil' size={24} color="black"/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>alert("Navigate to SearchScreen")} activeOpacity={0.5}>
+                    <TouchableOpacity onPress={()=>navigation.navigate("ChatSearch")} activeOpacity={0.5}>
                         <Ionicons name='search' size={24} color="black"/>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={signOut} activeOpacity={0.5}>
