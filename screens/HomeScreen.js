@@ -27,7 +27,6 @@ const HomeScreen = ({navigation}) => {
                     data: doc.data()
                 });
             });
-            console.log(chats);
             setChats(chats);
         });
         return unsubscribe;
@@ -42,7 +41,7 @@ const HomeScreen = ({navigation}) => {
             // Задаем разметку частей слева и справа от заголовка
             headerLeft: () => (
                 <View style={{ marginLeft: 20 }}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={()=>alert("Navigate to UserProfileScreen")}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={()=> navigation.navigate("Profile")}>
                         <Avatar rounded source={{ uri: auth?.currentUser?.photoURL }}/>
                     </TouchableOpacity>
                 </View>
@@ -57,7 +56,7 @@ const HomeScreen = ({navigation}) => {
                     <TouchableOpacity onPress={() => navigation.navigate("AddChat")} activeOpacity={0.5}>
                         <SimpleLineIcons name='pencil' size={24} color="black"/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>alert("Navigate to SearchScreen")} activeOpacity={0.5}>
+                    <TouchableOpacity onPress={()=> navigation.navigate("FindChat")} activeOpacity={0.5}>
                         <Ionicons name='search' size={24} color="black"/>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={signOut} activeOpacity={0.5}>
