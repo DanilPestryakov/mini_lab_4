@@ -6,6 +6,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import AddChatScreen from './screens/AddChatScreen';
 import ChatScreen from './screens/ChatScreen';
+import FindChatScreen from "./screens/FindChatScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 
 // Навигационный стек экранов. Позволяет упорядоченно переключатся между экранами
 const Stack = createStackNavigator();
@@ -36,7 +38,9 @@ export default function App() {
           <Stack.Screen options={{title: "Home"}} name="Home" component={HomeScreen}/>
           <Stack.Screen options={{title: "Add Chat"}} name="AddChat" component={AddChatScreen}/>
           <Stack.Screen options={{title: "Chat"}} name="Chat" component={ChatScreen}/>
-          </Stack.Navigator>
+          <Stack.Screen options={{title: "FindChatScreen"}} name="FindChatScreen" component={FindChatScreen}/>
+          <Stack.Screen options={{title: "Profile"}} name="Profile" component={ProfileScreen}/>
+        </Stack.Navigator>
       </NavigationContainer>
     </ThemeProvider>
   );

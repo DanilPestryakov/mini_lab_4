@@ -4,7 +4,7 @@ import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc} from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ( { navigation, route }) => {
@@ -108,6 +108,21 @@ const ChatScreen = ( { navigation, route }) => {
                   right={-5}
                   size={30}/>
                   <Text style={styles.userText}>{data.message}</Text>
+                    <View containerStyle={{
+                        position: "absolute",
+                        bottom: -15,
+                        right: 25,
+                    }}
+                          position="absolute"
+                          bottom={-15}
+                          right={25}
+                          size={30}>
+
+                        <Ionicons name='trash' size={24} color="#01a81a" onPress={() => {
+                            const docR = deleteDoc(doc(db, "chats", route.params.id, "messages", id))
+                                .catch((error) => alert(error.message));
+                        }}/>
+                    </View>
                 </View>
              ) : (
                 <View key={id} style={styles.senderMessage}>
