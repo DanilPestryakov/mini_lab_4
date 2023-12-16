@@ -12,6 +12,16 @@ const DialogueSearchScreen = ({ navigation }) => {
     const [chats, setChats] = useState([]);
     const [searchChats, setSearchChats] = useState([]);
 
+    const updateSearchChats = (chats, search) => {
+        setSearchChats(
+            chats.filter(
+                (chat) => chat.data.chatName.
+                toLowerCase().
+                includes(search.toLowerCase())
+            )
+        );
+    };
+
     useEffect(() => {
         const q = query(
             collection(db, "chats"),
@@ -29,16 +39,6 @@ const DialogueSearchScreen = ({ navigation }) => {
             updateSearchChats(chats, search);
         });
     }, [search])
-
-    const updateSearchChats = (chats, search) => {
-        setSearchChats(
-            chats.filter(
-                (chat) => chat.data.chatName.
-                toLowerCase().
-                includes(search.toLowerCase())
-            )
-        );
-    };
 
     useLayoutEffect(() => {
         navigation.setOptions({
