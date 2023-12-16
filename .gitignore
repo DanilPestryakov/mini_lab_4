@@ -1,0 +1,5 @@
+# Expo files
+.expo
+
+# NPM modules
+node_modules
