@@ -42,7 +42,7 @@ const HomeScreen = ({navigation}) => {
             // Задаем разметку частей слева и справа от заголовка
             headerLeft: () => (
                 <View style={{ marginLeft: 20 }}>
-                    <TouchableOpacity activeOpacity={0.5} onPress={()=>alert("Navigate to UserProfileScreen")}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={()=>navigation.navigate("Profile")}>
                         <Avatar rounded source={{ uri: auth?.currentUser?.photoURL }}/>
                     </TouchableOpacity>
                 </View>
