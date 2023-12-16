@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text } from "react-native";
-import { Avatar, Image } from "react-native-elements";
+import { Avatar } from "react-native-elements";
 import { auth } from "../firebase";
 
 const UserProfileScreen = () => {

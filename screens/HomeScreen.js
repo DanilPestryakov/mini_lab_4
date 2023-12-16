@@ -57,7 +57,7 @@ const HomeScreen = ({navigation}) => {
                     <TouchableOpacity onPress={() => navigation.navigate("AddChat")} activeOpacity={0.5}>
                         <SimpleLineIcons name='pencil' size={24} color="black"/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>alert("Navigate to SearchScreen")} activeOpacity={0.5}>
+                    <TouchableOpacity onPress={()=> navigation.navigate("Search")} activeOpacity={0.5}>
                         <Ionicons name='search' size={24} color="black"/>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={signOut} activeOpacity={0.5}>
