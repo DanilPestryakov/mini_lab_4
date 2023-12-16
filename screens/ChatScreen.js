@@ -4,7 +4,7 @@ import { Avatar, Button } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc, firebase } from 'firebase/firestore';
+import { addDoc, deleteDoc, setDoc, getDoc, doc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ({ navigation, route }) => {
@@ -51,7 +51,7 @@ const ChatScreen = ({ navigation, route }) => {
         })
     }, [navigation, messages]);
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         Keyboard.dismiss();
         const docRef = addDoc(
             collection(db, "chats", route.params.id, "messages"), {
@@ -63,6 +63,13 @@ const ChatScreen = ({ navigation, route }) => {
             }).then(() => {
             setInput("");
         }).catch((error) => alert(error.message))
+        const cityRef = doc(db, 'user-statistics', auth?.currentUser?.email);
+        const docSnap = await getDoc(cityRef);
+
+        if (docSnap.exists()) {
+            setDoc(cityRef, {sentMessages: docSnap.data().sentMessages + 1}, {merge: true});
+        } else
+            setDoc(cityRef, {sentMessages: 1}, {merge: true});
     };
 
     useLayoutEffect(() => {
