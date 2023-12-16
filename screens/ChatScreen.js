@@ -1,15 +1,20 @@
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, Modal, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { deleteDoc, addDoc, doc, collection, onSnapshot, serverTimestamp, query, orderBy, where } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ( { navigation, route }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    //ловим id и data сообщения после нажатия на сообщение
+    const [Id, setId] = useState();
+    const [Data, setData] = useState([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -66,7 +71,7 @@ const ChatScreen = ( { navigation, route }) => {
   };
 
   useLayoutEffect(() => {
-        const q = query(collection(db, "chats", route.params.id, "messages"), 
+        const q = query(collection(db, "chats", route.params.id, "messages"),
         orderBy("timestamp", "asc"));
         const unsubscribe = onSnapshot(q, (querySnaphots) => {
             const messages = [];
@@ -81,6 +86,13 @@ const ChatScreen = ( { navigation, route }) => {
         });
         return unsubscribe;
   }, [route]);
+
+    const deleteMessage = async (id) =>{
+        setModalVisible(!modalVisible);
+        console.log(auth.currentUser.displayName)
+
+        await deleteDoc(doc(db, "chats", route.params.id, "messages", id));
+    }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -108,6 +120,36 @@ const ChatScreen = ( { navigation, route }) => {
                   right={-5}
                   size={30}/>
                   <Text style={styles.userText}>{data.message}</Text>
+                    <TouchableOpacity onPress = {()=>{setModalVisible(true); setId(id); setData(data)}} hitSlop={{ top: 25, bottom: 25, left: 15, right: 15 }} >
+                        <Text style={styles.userText} >{data.message}</Text>
+                    </TouchableOpacity>
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                            Alert.alert('Modal has been closed.');
+                            setModalVisible(!modalVisible);
+                        }}>
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={[styles.modalText, {fontWeight: "600", fontSize: 16}]}>Delete message?</Text>
+                                <Text style={styles.modalText}>Text message: {Data.message}</Text>
+                                <View style={{flexDirection: "row",}}>
+                                    <TouchableOpacity
+                                        style={styles.buttonClose}
+                                        onPress={() => setModalVisible(!modalVisible)}>
+                                        <Text style={styles.textStyle}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.buttonClose}
+                                        onPress={() => {setModalVisible(!modalVisible); deleteMessage(Id)}}>
+                                        <Text style={styles.textStyle}>Yes</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
              ) : (
                 <View key={id} style={styles.senderMessage}>
@@ -202,4 +244,50 @@ const styles = StyleSheet.create({
     color: "grey",
     borderRadius: 30,
   },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+        backgroundColor: "rgba(255,255,255,0.5)",
+
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    buttonClose: {
+        marginLeft: 10,
+        marginRight: 10,
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        backgroundColor: '#01a81a',
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+
+    iconStyle: {
+        position: "absolute",
+        bottom: -15,
+        right: 20,
+    },
 });
