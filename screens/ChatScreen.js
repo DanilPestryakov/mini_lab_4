@@ -4,8 +4,9 @@ import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, deleteDoc, collection, onSnapshot, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import {Button, Alert} from 'react-native';
 
 const ChatScreen = ( { navigation, route }) => {
   const [input, setInput] = useState('');
@@ -65,6 +66,28 @@ const ChatScreen = ( { navigation, route }) => {
    }).catch((error) => alert(error.message))
   };
 
+  const deleteMessage = async (id, route) => {
+    const chatRef = doc(db, 'chats', route.params.id);
+    const messageRef = doc(chatRef, 'messages', id);
+    try {
+      await deleteDoc(messageRef)
+      console.log("Entire Document has been deleted successfully.");
+    } catch(ex) {
+      console.log(ex);
+    }
+  }
+
+  const showConfirmDialog = (id, data, route) => {
+    Alert.alert('DELETE', 'Delete message?', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => deleteMessage(id, route)},
+        ]);
+  };
+
   useLayoutEffect(() => {
         const q = query(collection(db, "chats", route.params.id, "messages"), 
         orderBy("timestamp", "asc"));
@@ -93,7 +116,7 @@ const ChatScreen = ( { navigation, route }) => {
         <ScrollView contentContainerStyle={{paddingTop: 15}}>
           {messages.map(({id, data}) => (
              data.email === auth.currentUser.email ? (
-                <View key={id} style={styles.userMessage}>
+                <TouchableOpacity key={id} style={styles.userMessage} onPress = {() => showConfirmDialog(id, data, route)}>
                   <Avatar 
                   rounded 
                   source={{uri: data.photoUrl}}
@@ -108,7 +131,8 @@ const ChatScreen = ( { navigation, route }) => {
                   right={-5}
                   size={30}/>
                   <Text style={styles.userText}>{data.message}</Text>
-                </View>
+
+                </TouchableOpacity>
              ) : (
                 <View key={id} style={styles.senderMessage}>
                   <Text style={styles.senderText}>{data.message}</Text>
