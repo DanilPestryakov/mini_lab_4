@@ -4,7 +4,7 @@ import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, deleteDoc, collection, onSnapshot, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ( { navigation, route }) => {
@@ -81,7 +81,10 @@ const ChatScreen = ( { navigation, route }) => {
         });
         return unsubscribe;
   }, [route]);
-
+  const deleteMessage = (id) => {
+    const docRef = doc(db, "chats", route.params.id, "messages", id)
+    deleteDoc(docRef).then()
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBar style='light'/>
@@ -93,6 +96,7 @@ const ChatScreen = ( { navigation, route }) => {
         <ScrollView contentContainerStyle={{paddingTop: 15}}>
           {messages.map(({id, data}) => (
              data.email === auth.currentUser.email ? (
+                <TouchableOpacity key={id} onPress={() => deleteMessage(id)}>
                 <View key={id} style={styles.userMessage}>
                   <Avatar 
                   rounded 
@@ -109,6 +113,7 @@ const ChatScreen = ( { navigation, route }) => {
                   size={30}/>
                   <Text style={styles.userText}>{data.message}</Text>
                 </View>
+                </TouchableOpacity>
              ) : (
                 <View key={id} style={styles.senderMessage}>
                   <Text style={styles.senderText}>{data.message}</Text>
