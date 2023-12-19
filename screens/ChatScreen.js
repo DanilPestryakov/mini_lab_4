@@ -4,7 +4,7 @@ import { Avatar } from 'react-native-elements';
 import { deafultPicURL } from '../utils';
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { StatusBar } from 'expo-status-bar';
-import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const ChatScreen = ( { navigation, route }) => {
@@ -65,6 +65,10 @@ const ChatScreen = ( { navigation, route }) => {
    }).catch((error) => alert(error.message))
   };
 
+  const deleteMessage = id => {
+    deleteDoc(doc(db, "chats", route.params.id, "messages", id))
+  };
+
   useLayoutEffect(() => {
         const q = query(collection(db, "chats", route.params.id, "messages"), 
         orderBy("timestamp", "asc"));
@@ -94,6 +98,12 @@ const ChatScreen = ( { navigation, route }) => {
           {messages.map(({id, data}) => (
              data.email === auth.currentUser.email ? (
                 <View key={id} style={styles.userMessage}>
+                  <TouchableOpacity
+                    style={{ position: "absolute", top: 12, left: -30}}
+                    onPress={() => deleteMessage(id)}
+                  >
+                    <Ionicons name='trash' size={20} color="#808080" />
+                  </TouchableOpacity>
                   <Avatar 
                   rounded 
                   source={{uri: data.photoUrl}}
