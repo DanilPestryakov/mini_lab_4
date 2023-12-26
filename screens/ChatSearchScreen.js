@@ -5,6 +5,7 @@ import Icon from "react-native-vector-icons/FontAwesome"
 import { auth, db } from '../firebase';
 import { collection, onSnapshot, where, query } from 'firebase/firestore';
 import ChatListItem from '../components/ChatListItem';
+import { Ionicons } from '@expo/vector-icons';
 
 const ChatSearchScreen = ({ navigation }) => {
     const [input, setInput] = useState('');
@@ -37,14 +38,14 @@ const ChatSearchScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Input placeholder='Enter chat name' value={input}
-          onChangeText={(text) => setInput(text)}
-          value={input}
-          leftIcon={
-                <Icon name="search" size={20} color="black"/>
-          }
-      />
-
+          <Input placeholder='Enter chat name' value={input}
+              onChangeText={(text) => setInput(text)}
+              value={input}
+              leftIcon={
+                    <Ionicons name="ios-search-circle-outline" size={24} color="black" />
+              }
+              style={styles.searchbar}
+            />
       <SafeAreaView style={{flex: 1}}>
         <ScrollView style={styles.container}>
             {chats.map( ({id, data: { chatName }}) => (
@@ -63,5 +64,6 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         padding: 20,
         height: "100%",
-    }
+    },
 })
+
